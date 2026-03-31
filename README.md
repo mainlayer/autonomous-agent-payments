@@ -1,6 +1,6 @@
 # Autonomous Agent Payments
 
-A fully autonomous agent that **earns and spends** money via [Mainlayer](https://mainlayer.xyz) — the payment infrastructure API for AI agents.
+A fully autonomous agent that **earns and spends** money via [Mainlayer](https://mainlayer.fr) — the payment infrastructure API for AI agents.
 
 The agent registers itself as a paid service, accepts payments from other agents, and autonomously decides which external services to purchase based on its current balance — all without any human intervention.
 
@@ -21,7 +21,7 @@ The agent registers itself as a paid service, accepts payments from other agents
 │                                    │ spend()                   │
 │                       ┌────────────▼────────────┐              │
 │                       │   Mainlayer Payment API  │              │
-│                       │  api.mainlayer.xyz       │              │
+│                       │  api.mainlayer.fr       │              │
 │                       └──┬──────────┬────────────┘              │
 │                          │          │          │                │
 │               ┌──────────▼─┐  ┌────▼────┐  ┌─▼─────────┐     │
@@ -220,7 +220,7 @@ await agent.close()
 
 ## Mainlayer API
 
-Base URL: `https://api.mainlayer.xyz`
+Base URL: `https://api.mainlayer.fr`
 
 Authentication: `Authorization: Bearer <api_key>`
 

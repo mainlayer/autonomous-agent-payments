@@ -17,7 +17,7 @@ class AgentConfig:
 
     # Mainlayer API
     api_key: str = os.environ.get("MAINLAYER_API_KEY", "")
-    base_url: str = os.environ.get("MAINLAYER_BASE_URL", "https://api.mainlayer.xyz")
+    base_url: str = os.environ.get("MAINLAYER_BASE_URL", "https://api.mainlayer.fr")
 
     # Budget management
     budget_limit: float = float(os.environ.get("BUDGET_LIMIT", "10.0"))
