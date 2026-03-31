@@ -1,11 +1,16 @@
-"""
-AutonomousAgent — earns and spends via Mainlayer payment infrastructure.
+"""AutonomousAgent — earns and spends via Mainlayer payment infrastructure.
 
-The agent:
+The agent lifecycle:
   1. Registers a summarization service as a Mainlayer payable resource.
   2. Accepts payments from buyer agents for that service.
   3. Checks its revenue balance periodically.
   4. Autonomously decides which external services to purchase based on budget.
+  5. Respects hard budget limits and tiered spending thresholds.
+
+Example:
+    agent = AutonomousAgent(name="Summarizer", api_key="ml_...", budget_limit=10.0)
+    await agent.setup()
+    await agent.run_forever(interval_seconds=60)
 """
 
 from __future__ import annotations
@@ -48,22 +53,39 @@ class PaymentError(Exception):
 
 
 class AutonomousAgent:
-    """
-    A self-managing agent that earns revenue by selling a service and
-    spends that revenue on external data, research, and storage services.
+    """A self-managing agent that earns and spends via Mainlayer.
+
+    Earns revenue by selling a service and spends that revenue autonomously
+    on external data, research, and storage services based on budget constraints.
 
     Parameters
     ----------
-    name:
+    name : str
         Human-readable agent identifier shown in logs and dashboards.
-    api_key:
+    api_key : str
         Mainlayer API key (Bearer token).
-    budget_limit:
-        Maximum cumulative spend allowed over the agent's lifetime.
-    cfg:
-        Optional full AgentConfig; if not provided, default_config is used.
-    svc_prices:
-        Optional ServicePrices override; if not provided, default_prices is used.
+    budget_limit : float, default=10.0
+        Maximum cumulative spend allowed over the agent's lifetime (USD).
+    cfg : AgentConfig, optional
+        Full AgentConfig; if not provided, default_config is used.
+    svc_prices : ServicePrices, optional
+        ServicePrices override; if not provided, default_prices is used.
+
+    Attributes
+    ----------
+    budget : float
+        Current available balance (revenue earned minus spent).
+    total_spent : float
+        Cumulative amount spent since initialization.
+    transactions : list[Transaction]
+        Complete ledger of earn/spend events.
+
+    Example
+    -------
+    >>> agent = AutonomousAgent("Summarizer", api_key="ml_live_...", budget_limit=10.0)
+    >>> await agent.setup()  # Register service
+    >>> await agent.run_cycle()  # Single cycle: check balance, earn, spend
+    >>> await agent.run_forever(interval_seconds=60)  # Run continuously
     """
 
     def __init__(

@@ -1,11 +1,14 @@
-"""
-Configuration for the Autonomous Agent Payments demo.
+"""Configuration for the Autonomous Agent Payments demo.
 
 All settings can be overridden via environment variables.
+See README.md for complete list of configuration options.
 """
 
+import logging
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -44,7 +47,14 @@ class AgentConfig:
     rich_output: bool = os.environ.get("RICH_OUTPUT", "true").lower() == "true"
 
     def validate(self) -> None:
-        """Raise ValueError for obviously wrong configuration."""
+        """Raise ValueError for obviously wrong configuration.
+
+        Checks:
+        - API key is set and non-empty
+        - Budget limit is positive
+        - Service price is positive
+        - Budget limit >= service price (sensible constraint)
+        """
         if not self.api_key:
             raise ValueError(
                 "MAINLAYER_API_KEY is not set. "
@@ -54,6 +64,17 @@ class AgentConfig:
             raise ValueError("BUDGET_LIMIT must be positive.")
         if self.service_price <= 0:
             raise ValueError("SERVICE_PRICE must be positive.")
+        if self.budget_limit < self.service_price:
+            logger.warning(
+                f"BUDGET_LIMIT (${self.budget_limit:.2f}) is less than "
+                f"SERVICE_PRICE (${self.service_price:.2f}). "
+                f"Agent won't be able to earn from a single call."
+            )
+        logger.info(
+            f"Agent '{self.name}' configured: "
+            f"${self.service_price:.2f}/call, "
+            f"${self.budget_limit:.2f} limit"
+        )
 
 
 @dataclass
