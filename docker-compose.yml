@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: autonomous-agent-payments:latest
+    container_name: autonomous-agent
+    environment:
+      # Required — set this in your shell or .env file (never commit the key)
+      - MAINLAYER_API_KEY=${MAINLAYER_API_KEY}
+      # Optional overrides
+      - AGENT_NAME=${AGENT_NAME:-SummarizerAgent}
+      - BUDGET_LIMIT=${BUDGET_LIMIT:-10.0}
+      - CYCLE_INTERVAL_SECONDS=${CYCLE_INTERVAL_SECONDS:-60}
+      - SERVICE_PRICE=${SERVICE_PRICE:-0.05}
+      - MIN_BALANCE_TO_SPEND=${MIN_BALANCE_TO_SPEND:-0.50}
+      - DEMO_CYCLES=${DEMO_CYCLES:-8}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+    # Expose nothing — this agent has no inbound HTTP server
+    networks:
+      - agent-net
+
+  # Optional: run the multi-agent swarm instead
+  swarm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: autonomous-agent-payments:latest
+    container_name: agent-swarm
+    environment:
+      - MAINLAYER_API_KEY=${MAINLAYER_API_KEY}
+    command: python examples/multi_agent_swarm.py
+    profiles:
+      - swarm
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge
